@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    />
+
+    <title>Vue Demo</title>
+  </head>
+
+  <body>
+    <div id="app" class="container mt-5">
+      <h4>
+        {{ message }}
+      </h4>
+      <hr />
+
+      <!-- V-BIND -->
+      <a
+        v-on:href="linkGoogle"
+        class="btn btn-info"
+        :class="isDisabled ? 'disabled' : ''"
+      >
+        Search!
+      </a>
+
+      <!-- V-TEXT -->
+      <small v-text="message">Ada sesuatu</small>
+
+      <!-- V-TEXT  vs V-HTML -->
+      <p class="desc" v-text="description"></p>
+      <p class="desc" v-html="description"></p>
+
+      <!-- V-MODEL -->
+      <div>
+        <input v-model="message" placeholder="edit me" class="form-control" />
+        <p>Message is: {{ message }}</p>
+
+        <select v-model="activity">
+          <option disabled value="">Pilih Dong</option>
+          <option value="Makan">Makan</option>
+          <option value="Minum">Minum</option>
+          <option value="Tidur">Tidur</option>
+        </select>
+      </div>
+
+      <!-- V-ON -->
+      <div>
+        COUNTER: {{ counter }}
+        <button class="btn btn-info" v-on:click="increment">
+          Tambah Angka
+        </button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <section v-if="pageName === 'login'">
+        <h1>Login Yuk</h1>
+        <form>
+          <div class="form-group">
+            <label>Email address</label>
+            <input type="email" class="form-control" />
+            <small class="form-text text-muted"
+              >We'll never share your email with anyone else.</small
+            >
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" />
+          </div>
+          <div class="form-group form-check">
+            <input
+              type="checkbox"
+              class="form-check-input"
+              id="exampleCheck1"
+            />
+            <label class="form-check-label">Check me out</label>
+          </div>
+          <button type="submit" class="btn btn-info">Submit</button>
+        </form>
+      </section>
+
+      <!-- REGISTER FORM -->
+      <section v-else-if="pageName === 'register'">
+        <h1>Register Dulu Yaa</h1>
+        <form>
+          <div class="form-group">
+            <label>Email address</label>
+            <input type="email" class="form-control" />
+            <small class="form-text text-muted"
+              >We'll never share your email with anyone else.</small
+            >
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" />
+          </div>
+          <button type="submit" class="btn btn-info">Submit</button>
+        </form>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section v-else>
+        <h1>Voila! sudah di dashboard</h1>
+        <form class="mt-3 form-inline" v-on:submit.prevent="addTask">
+          <label class="mr-sm-2">Task Name</label>
+          <input
+            class="form-control mr-sm-2"
+            type="text"
+            placeholder="Isi apapun..."
+            v-model="task"
+          />
+          <button class="btn btn-outline-info my-2 my-sm-0" type="submit">
+            Add
+          </button>
+        </form>
+
+        <!-- V-FOR -->
+        <ol class="mt-3">
+          <li v-for="(activity, index) in activities">
+            {{ activity }} ||
+
+            <a href="#" v-on:click="removeTodo(index)">delete</a>
+          </li>
+        </ol>
+
+        <button class="btn btn-info" v-on:click="getBooks">
+          Character List
+        </button>
+        <div class="row">
+          <div
+            class="col-3"
+            style="padding: 10px;"
+            v-for="char in chars"
+            v-bind:key="char.id"
+          >
+            <div class="card">
+              <img class="card-img-top" :src="char.img" alt="Card image cap" />
+              <div class="card-body">
+                <p class="card-text">
+                  {{char.name}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- VUE CDN HERE -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!-- LETS COOK! YOUR VUE SCRIPT IN HERE -->
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+          message: 'Hallooo Vue! Salam Kenal',
+          linkGoogle: 'https://www.google.com/',
+          isDisabled: true,
+          description: '<i>Easy peasy dori roti stroberi</i>',
+          selectedActivity: '',
+
+          counter: 0,
+          emailLogin: '',
+          passwordLogin: '',
+
+          pageName: 'dashboard', // login || register || dashboard
+          task: '',
+
+          activities: ['membaca', 'tidur', 'makan'],
+          chars: [],
+        },
+
+        methods: {
+          increment() {
+            this.counter++
+          },
+          removeTodo(index) {
+            this.activities.splice(index, 1)
+          },
+          addTask() {
+            this.activities.push(this.task)
+            this.task = ''
+          },
+          getBooks() {
+            axios
+              .get('https://www.breakingbadapi.com/api/characters', {
+                params: {
+                  limit: 8,
+                },
+              })
+              .then((response) => {
+                this.chars = response.data
+                console.log(this)
+              })
+              .catch((err) => {
+                console.log(err)
+              })
+          },
+          created() {
+            console.log('here')
+          },
+        },
+      })
+    </script>
+  </body>
+</html>
